@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Hướng dẫn người mới dùng AI để setup màu heading trong Obsidian bằng CSS snippet.">
+  <title>Từ prompt đến một Obsidian đẹp hơn</title>
+  <style>
+    :root {
+      --ink: #f4f1e9;
+      --muted: #afc1b9;
+      --surface: #183b33;
+      --surface-2: #214c40;
+      --line: #3d6a5a;
+      --bg: #0e211d;
+      --accent: #f2bd55;
+      --accent-2: #e77a66;
+      --soft: #e8eee8;
+      --shadow: 0 22px 70px rgba(0, 0, 0, .24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 85% 0%, rgba(242, 189, 85, .15), transparent 30rem),
+        radial-gradient(circle at 0% 35%, rgba(68, 143, 112, .12), transparent 30rem),
+        var(--bg);
+      font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--accent); }
+    button { font: inherit; }
+    .shell { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    .eyebrow { color: var(--accent); font-size: .76rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .brand-logo { display: block; width: min(210px, 58vw); height: auto; margin-bottom: 26px; object-fit: contain; object-position: left center; }
+    .lesson-title { margin-bottom: 12px; color: var(--accent); font-size: 1.08rem; font-weight: 850; letter-spacing: .02em; }
+    .hero { padding: 80px 0 58px; }
+    .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; }
+    h1, h2, h3 { line-height: 1.08; letter-spacing: -.04em; }
+    h1 { max-width: 760px; margin: 16px 0 20px; font-size: clamp(3rem, 8vw, 6.7rem); }
+    h2 { margin: 0 0 14px; font-size: clamp(2rem, 4vw, 3.4rem); }
+    h3 { margin: 0 0 8px; font-size: 1.35rem; }
+    p { margin: 0 0 16px; }
+    .lede { max-width: 690px; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.3rem); }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+    .button, .copy-button {
+      border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: var(--surface-2);
+      cursor: pointer; font-weight: 800; padding: 10px 16px; transition: .2s ease;
+    }
+    .button:hover, .copy-button:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .button.primary { color: #1b271f; border-color: var(--accent); background: var(--accent); }
+    .preview-card { position: relative; border: 1px solid var(--line); border-radius: 28px; padding: 22px; background: linear-gradient(145deg, rgba(33, 76, 64, .96), rgba(24, 59, 51, .78)); box-shadow: var(--shadow); }
+    .preview-top { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 20px; color: var(--muted); font-size: .78rem; }
+    .dot { display: inline-block; width: 9px; height: 9px; margin-right: 5px; border-radius: 50%; background: var(--accent); }
+    .heading-preview { border-radius: 18px; padding: 24px; background: #102923; }
+    .heading-preview h1, .heading-preview h2, .heading-preview h3, .heading-preview h4, .heading-preview h5, .heading-preview h6 { margin: 0 0 9px; }
+    .heading-preview h1 { color: #f2bd55; font-size: 2.2rem; }
+    .heading-preview h2 { color: #e77a66; font-size: 1.65rem; }
+    .heading-preview h3 { color: #8ed0ae; font-size: 1.3rem; }
+    .heading-preview h4 { color: #a6c7f2; font-size: 1.1rem; }
+    .heading-preview h5 { color: #d6b6eb; font-size: 1rem; }
+    .heading-preview h6 { color: #b9cbc4; font-size: .9rem; }
+    .section { padding: 74px 0; border-top: 1px solid rgba(61, 106, 90, .55); }
+    .section-intro { max-width: 700px; color: var(--muted); margin-bottom: 28px; }
+    .step-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .step { position: relative; border: 1px solid var(--line); border-radius: 22px; padding: 26px; background: rgba(24, 59, 51, .7); }
+    .step-number { display: grid; place-items: center; width: 36px; height: 36px; margin-bottom: 20px; border-radius: 50%; color: #1b271f; background: var(--accent); font-weight: 900; }
+    .step p, .step li, .muted { color: var(--muted); }
+    .step ul, .step ol { margin: 12px 0 0; padding-left: 22px; }
+    .code-wrap { position: relative; margin: 18px 0 0; }
+    pre { overflow-x: auto; margin: 0; border: 1px solid #365e51; border-radius: 16px; padding: 20px; color: #e5f0e6; background: #0a1915; font: .9rem/1.65 "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    .copy-button { position: absolute; top: 10px; right: 10px; padding: 7px 11px; color: var(--accent); background: #183b33; font-size: .78rem; }
+    .copy-status { min-height: 24px; margin-top: 8px; color: var(--accent); font-size: .85rem; }
+    .callout { margin-top: 22px; border-left: 4px solid var(--accent); border-radius: 0 14px 14px 0; padding: 15px 18px; color: var(--soft); background: rgba(242, 189, 85, .1); }
+    .path { display: inline-block; margin: 10px 0; border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; color: var(--accent); background: #102923; font-family: monospace; }
+    .result-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 18px; align-items: stretch; }
+    .checklist { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .checklist li { border: 1px solid var(--line); border-radius: 13px; padding: 12px 14px; color: var(--muted); background: rgba(24, 59, 51, .7); }
+    .checklist li::before { content: "✓"; display: inline-block; width: 23px; color: var(--accent); font-weight: 900; }
+    .trouble-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    details { border-bottom: 1px solid var(--line); padding: 16px 0; }
+    summary { cursor: pointer; color: var(--ink); font-weight: 800; }
+    details p { margin: 12px 0 0; color: var(--muted); }
+    .done { border: 1px solid var(--accent); border-radius: 24px; padding: 28px; background: linear-gradient(145deg, rgba(242, 189, 85, .13), rgba(24, 59, 51, .8)); }
+    footer { padding: 42px 0 70px; color: var(--muted); font-size: .9rem; }
+    @media (max-width: 800px) {
+      .shell { width: min(100% - 28px, 680px); }
+      .hero { padding-top: 48px; }
+      .hero-grid, .result-grid, .step-grid, .trouble-grid { grid-template-columns: 1fr; }
+      .hero-grid { gap: 30px; }
+      .section { padding: 52px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="shell hero-grid">
+      <div>
+        <img class="brand-logo" src="assets/the1ight-logo.png" alt="the1ight — Lighting up your world">
+        <div class="lesson-title">Buổi 1 - Setup Obsidian</div>
+        <div class="eyebrow">The1ight · Obsidian setup</div>
+        <h1>Từ prompt đến một Obsidian đẹp hơn.</h1>
+        <p class="lede">Bạn không cần biết CSS trước. Chỉ cần mô tả điều bạn muốn, nhờ AI viết snippet, rồi dán đúng chỗ.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#step-1">Bắt đầu setup</a>
+          <a class="button" href="#done">Xem đã xong là gì</a>
+        </div>
+      </div>
+      <div class="preview-card" aria-label="Preview heading colors">
+        <div class="preview-top"><span><span class="dot"></span>Live preview</span><span>heading-colors.css</span></div>
+        <div class="heading-preview">
+          <h1>H1 · Tiêu đề lớn</h1>
+          <h2>H2 · Phần chính</h2>
+          <h3>H3 · Phần nhỏ</h3>
+          <h4>H4 · Chi tiết</h4>
+          <h5>H5 · Ghi chú</h5>
+          <h6>H6 · Metadata</h6>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="section">
+      <div class="section-intro">
+        <div class="eyebrow">Trước khi bắt đầu</div>
+        <h2>CSS là lớp trang trí, không phải kiến thức mới phải học thuộc.</h2>
+        <p>Note của bạn vẫn là Markdown. CSS chỉ nói cho Obsidian biết: heading nào có màu gì, cỡ chữ ra sao, và khoảng cách thế nào.</p>
+        <div class="callout"><strong>Nguyên tắc:</strong> bạn dùng AI để viết bản đầu, nhưng bạn vẫn là người chọn nó có dễ đọc và hợp với hệ thống của mình hay không.</div>
+      </div>
+    </section>
+
+    <section class="section" id="step-1">
+      <div class="section-intro">
+        <div class="eyebrow">Bước 1 · Nhờ AI viết code</div>
+        <h2>Đừng bắt đầu bằng code. Bắt đầu bằng một yêu cầu rõ.</h2>
+        <p>Copy prompt này vào AI. Nếu thích màu khác, chỉ cần thay phần mô tả màu.</p>
+      </div>
+      <div class="code-wrap">
+        <button class="copy-button" type="button" data-copy-target="prompt">Copy prompt</button>
+        <pre id="prompt">Tôi là người mới hoàn toàn với CSS.
+
+Hãy viết cho tôi một CSS snippet để đổi màu H1, H2, H3, H4, H5 và H6 trong Obsidian.
+
+Yêu cầu:
+- Phong cách dark studio, nền xanh đậm.
+- Heading dễ đọc, có độ tương phản tốt.
+- Mỗi cấp heading có một màu khác nhau nhưng vẫn cùng một hệ màu.
+- Hỗ trợ cả Reading view và Live Preview.
+
+Giải thích từng phần bằng tiếng Việt.
+Chỉ trả về code CSS hoàn chỉnh trong một code block và hướng dẫn tôi dán code vào đâu.</pre>
+        <div class="copy-status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-intro">
+        <div class="eyebrow">Bước 2 · Nhận code từ AI</div>
+        <h2>Chỉ copy phần CSS, không copy lời giải thích.</h2>
+        <p>AI thường trả lời gồm phần giải thích và một khung code. Bạn chỉ copy nội dung bên trong khung code CSS.</p>
+      </div>
+      <div class="code-wrap">
+        <button class="copy-button" type="button" data-copy-target="css-example">Copy CSS mẫu</button>
+        <pre id="css-example">/* Heading colors cho Obsidian */
+.cm-header-1,
+.markdown-preview-view h1 { color: #f2bd55; }
+
+.cm-header-2,
+.markdown-preview-view h2 { color: #e77a66; }
+
+.cm-header-3,
+.markdown-preview-view h3 { color: #8ed0ae; }
+
+.cm-header-4,
+.markdown-preview-view h4 { color: #a6c7f2; }
+
+.cm-header-5,
+.markdown-preview-view h5 { color: #d6b6eb; }
+
+.cm-header-6,
+.markdown-preview-view h6 { color: #b9cbc4; }</pre>
+        <div class="copy-status" aria-live="polite"></div>
+      </div>
+      <div class="callout"><strong>AI trả code khác cũng không sao.</strong> Miễn là nó có selector cho cả `.cm-header-*` và `.markdown-preview-view h*`, để màu hoạt động ở cả lúc viết và lúc đọc.</div>
+    </section>
+
+    <section class="section">
+      <div class="section-intro">
+        <div class="eyebrow">Bước 3 · Dán vào Obsidian</div>
+        <h2>Tạo một CSS snippet rồi bật nó lên.</h2>
+      </div>
+      <div class="step-grid">
+        <article class="step"><div class="step-number">1</div><h3>Mở phần cài đặt</h3><p>Trong Obsidian, mở <strong>Settings</strong>, rồi chọn <strong>Appearance</strong>.</p></article>
+        <article class="step"><div class="step-number">2</div><h3>Tìm CSS snippets</h3><p>Kéo xuống phần <strong>CSS snippets</strong> và bấm biểu tượng thư mục để mở thư mục snippets.</p></article>
+        <article class="step"><div class="step-number">3</div><h3>Tạo file CSS</h3><p>Tạo một file mới, ví dụ:</p><span class="path">heading-colors.css</span><p>Đuôi file bắt buộc là <code>.css</code>, không phải `.txt`.</p></article>
+        <article class="step"><div class="step-number">4</div><h3>Dán, lưu, bật</h3><p>Dán CSS vào file, lưu lại, quay về Obsidian và bật công tắc cạnh tên snippet.</p></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-intro">
+        <div class="eyebrow">Bước 4 · Kiểm tra kết quả</div>
+        <h2>Đừng tin là đã xong cho đến khi nhìn thấy nó trong note thật.</h2>
+        <p>Tạo hoặc mở một note có đủ H1, H2, H3. Kiểm tra cả lúc đang viết và lúc chuyển sang Reading view.</p>
+      </div>
+      <div class="result-grid">
+        <div class="preview-card"><div class="preview-top"><span><span class="dot"></span>Expected result</span><span>H1 → H6</span></div><div class="heading-preview"><h1>Tiêu đề lớn</h1><h2>Phần chính</h2><h3>Phần nhỏ</h3><h4>Chi tiết</h4><h5>Ghi chú</h5><h6>Metadata</h6></div></div>
+        <ul class="checklist">
+          <li>Snippet xuất hiện trong Settings → Appearance.</li>
+          <li>Công tắc snippet đang bật.</li>
+          <li>H1, H2, H3 trong note thật đã đổi màu.</li>
+          <li>Chữ vẫn dễ đọc trên nền theme hiện tại.</li>
+          <li>Body text và link không bị đổi màu ngoài ý muốn.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-intro"><div class="eyebrow">Nếu gặp lỗi</div><h2>Đừng xoá hết. Kiểm tra từng điểm một.</h2></div>
+      <div class="trouble-grid">
+        <div class="step"><details><summary>Snippet không xuất hiện</summary><p>Kiểm tra file có nằm đúng thư mục CSS snippets không và tên file có kết thúc bằng `.css` không.</p></details><details><summary>Không có gì thay đổi</summary><p>Quay lại Settings → Appearance, tắt rồi bật lại snippet. Nếu cần, đóng và mở lại Obsidian.</p></details></div>
+        <div class="step"><details><summary>Màu bị khó đọc</summary><p>Nhờ AI: “Hãy tăng độ tương phản, giữ nguyên selector và kiểm tra cả nền sáng lẫn nền tối.”</p></details><details><summary>AI trả cả giải thích vào code</summary><p>Chỉ copy phần nằm trong code block CSS. Không copy dấu backtick hoặc phần giải thích bên ngoài.</p></details></div>
+      </div>
+    </section>
+
+    <section class="section" id="done">
+      <div class="done">
+        <div class="eyebrow">Definition of done</div>
+        <h2>Đến đây là bạn đã làm xong.</h2>
+        <ul class="checklist">
+          <li>Bạn có một CSS snippet đang được bật.</li>
+          <li>H1, H2 và H3 có màu có chủ đích.</li>
+          <li>Thay đổi hoạt động trong một note thật.</li>
+          <li>Bạn biết cách nhờ AI chỉnh màu mà không cần làm lại từ đầu.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">The1ight · Human directs. AI accelerates. Obsidian keeps the system yours.</footer>
+
+  <script>
+    document.querySelectorAll('[data-copy-target]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const target = document.getElementById(button.dataset.copyTarget);
+        const status = button.closest('.code-wrap').querySelector('.copy-status');
+        const original = button.textContent;
+        try {
+          await navigator.clipboard.writeText(target.textContent);
+          button.textContent = 'Đã copy';
+          status.textContent = 'Đã copy vào clipboard. Giờ dán vào AI hoặc file CSS.';
+        } catch (error) {
+          status.textContent = 'Không tự copy được. Hãy bôi đen đoạn code rồi nhấn Cmd/Ctrl + C.';
+        }
+        window.setTimeout(() => { button.textContent = original; }, 1500);
+      });
+    });
+  </script>
+</body>
+</html>
